@@ -6,7 +6,51 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.intjltd.shottrainer.MainActivity">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Space
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/button_spacer" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btnStart"
+                android:id="@+id/btnStart"
+                android:layout_toStartOf="@id/button_spacer" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btnStop"
+                android:id="@+id/btnStop"
+                android:layout_toEndOf="@id/button_spacer" />
+        </RelativeLayout>
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/txtLogger"
+            android:textIsSelectable="true"
+            android:enabled="true"
+            android:longClickable="true"
+            android:gravity="top"
+            android:fontFamily="Courier New"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
 
 </RelativeLayout>
