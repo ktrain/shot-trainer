@@ -16,4 +16,10 @@
     <string name="lblY">y</string>
     <string name="lblZ">z</string>
     <string name="lblW">w</string>
+    <string name="lblIdle">Idle</string>
+
+    <string name="lblProtipGrasp">Did you drop it?</string>
+    <string name="lblProtipLift">Didn\'t extend properly</string>
+    <string name="lblProtipToss">Gotta flick, brah.</string>
+    <string name="lblProtipFlick">YOU DID IT!</string>
 </resources>

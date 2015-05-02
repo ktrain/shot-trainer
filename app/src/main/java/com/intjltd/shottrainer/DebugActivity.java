@@ -76,12 +76,6 @@ public class DebugActivity extends ActionBarActivity {
         txtEmgData = (EditText) findViewById(R.id.txtEmgData);
 
         Hub hub = Hub.getInstance();
-        if (!hub.init(this, getPackageName())) {
-            Toast.makeText(this, "Couldn't initialize Hub", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
         hub.addListener(myoListener);
     }
 
@@ -89,10 +83,6 @@ public class DebugActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         Hub.getInstance().removeListener(myoListener);
-
-        if (isFinishing()) {
-            Hub.getInstance().shutdown();
-        }
     }
 
     @Override
