@@ -10,7 +10,7 @@
     <string name="lblOrientation">Orientation</string>
     <string name="lblAccelerometer">Accelerometer</string>
     <string name="lblGyroscope">Gyroscope</string>
-    <string name="lblRssi">RSSI</string>
+    <string name="lblEmgData">EMG</string>
     <string name="lblX">x</string>
     <string name="lblY">y</string>
     <string name="lblZ">z</string>

@@ -18,6 +18,7 @@ import com.thalmic.myo.Pose;
 import com.thalmic.myo.Quaternion;
 import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
+import com.thalmic.myo.internal.util.ByteUtil;
 import com.thalmic.myo.scanner.ScanActivity;
 
 
@@ -28,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
     private EditText txtOrientation;
     private EditText txtAccelerometer;
     private EditText txtGyroscope;
-    private EditText txtRssi;
+    private EditText txtEmgData;
 
 //    private EditText txtOrientationX;
 //    private EditText txtOrientationY;
@@ -57,6 +58,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private DeviceListener myoListener = new AbstractDeviceListener() {
+        @Override
+        public void onConnect(Myo myo, long timestamp) {
+            myo.setStreamEmg(Myo.StreamEmgType.ENABLED);
+        }
+
         @Override
         public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
             txtOrientation.setText(
@@ -96,8 +102,8 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onRssi(Myo myo, long timestamp, int rssi) {
-            setOutput(txtRssi, rssi);
+        public void onEmgData(Myo myo, long timestamp, byte[] emg) {
+            txtEmgData.setText(ByteUtil.bytesToHex(emg));
         }
     };
 
@@ -122,7 +128,7 @@ public class MainActivity extends ActionBarActivity {
         txtOrientation = (EditText) findViewById(R.id.txtOrientation);
         txtAccelerometer = (EditText) findViewById(R.id.txtAccelerometer);
         txtGyroscope = (EditText) findViewById(R.id.txtGyroscope);
-        txtRssi = (EditText) findViewById(R.id.txtRssi);
+        txtEmgData = (EditText) findViewById(R.id.txtEmgData);
 
         findViewById(R.id.btnStart).requestFocus();
 

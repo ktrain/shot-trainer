@@ -89,7 +89,7 @@
                 android:layout_marginTop="15dp" />
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:ems="10"
@@ -111,7 +111,7 @@
                 android:layout_marginTop="15dp" />
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:ems="10"
@@ -126,8 +126,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/lblRssi"
-                android:id="@+id/lblRssi"
+                android:text="@string/lblEmgData"
+                android:id="@+id/lblEmgData"
                 android:layout_gravity="right"
                 android:layout_below="@+id/txtGyroscope"
                 android:layout_marginTop="15dp" />
@@ -135,9 +135,8 @@
             <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/txtRssi"
-                android:typeface="monospace"
-                android:layout_below="@+id/lblRssi"
+                android:id="@+id/txtEmgData"
+                android:layout_below="@+id/lblEmgData"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="5dp"
                 android:textSize="11dp" />
