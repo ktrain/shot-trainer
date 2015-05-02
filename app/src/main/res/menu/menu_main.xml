@@ -4,4 +4,6 @@
     tools:context="com.intjltd.shottrainer.MainActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_myoScan" android:title="@string/action_myoScan"
+        android:orderInCategory="100" />
 </menu>

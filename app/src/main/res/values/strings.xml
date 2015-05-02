@@ -4,6 +4,15 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="action_myoScan">Scan for Myos</string>
     <string name="btnStart">Start</string>
     <string name="btnStop">Stop</string>
+    <string name="lblOrientation">Orientation</string>
+    <string name="lblAccelerometer">Accelerometer</string>
+    <string name="lblGyroscope">Gyroscope</string>
+    <string name="lblRssi">RSSI</string>
+    <string name="lblX">x</string>
+    <string name="lblY">y</string>
+    <string name="lblZ">z</string>
+    <string name="lblW">w</string>
 </resources>
