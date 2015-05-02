@@ -27,6 +27,8 @@ import com.thalmic.myo.XDirection;
 import com.thalmic.myo.internal.util.ByteUtil;
 import com.thalmic.myo.scanner.ScanActivity;
 
+import java.util.LinkedList;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -37,6 +39,10 @@ public class MainActivity extends ActionBarActivity {
     private TextView lblProtip;
 
     private ShotState currentState = ShotState.IDLE;
+    private long stateChangeTimestamp = 0;
+    private double minPitch = Double.MAX_VALUE;
+    private double maxPitch = Double.MIN_VALUE;
+    private int numSamples = 0;
 
     private DeviceListener myoListener = new AbstractDeviceListener() {
         @Override
@@ -46,7 +52,50 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
+            double yaw = Quaternion.yaw(rotation);
+            double pitch = Quaternion.pitch(rotation);
+            double roll = Quaternion.roll(rotation);
 
+            switch (currentState) {
+                case IDLE:
+                    numSamples++;
+
+                    // check if pitch is within acceptable bounds
+                    if (pitch < -0.5 || 0.0 < pitch) {
+                        numSamples = 0;
+                    } else if (pitch < minPitch) {
+                        minPitch = pitch;
+                    } else if (pitch > maxPitch) {
+                        maxPitch = pitch;
+                    }
+
+                    // check if the min and max vary too much
+                    if (Math.abs(maxPitch - minPitch) > 0.2) {
+                        numSamples = 0;
+                    }
+
+                    if (numSamples >= 50) {
+                        changeToState(ShotState.GATHERED);
+                        myo.vibrate(Myo.VibrationType.SHORT);
+                    }
+                    break;
+                case GATHERED:
+                    if (pitch > 1.0) {
+                        changeToState(ShotState.LIFTING);
+                    }
+                    break;
+                case LIFTING:
+                    if (pitch < 0.9) {
+                        if (roll > 2.0) {
+                            theyMessedUp("Keep the ball in front of your head.");
+                        } else if (System.currentTimeMillis() - stateChangeTimestamp < 500) {
+                            theyMessedUp("Not enough follow-through.");
+                        } else {
+                            theyMessedUp("Nice form!");
+                        }
+                    }
+                    break;
+            }
         }
 
         @Override
@@ -71,18 +120,19 @@ public class MainActivity extends ActionBarActivity {
                 nextState();
             } else if (pose == Pose.WAVE_IN) {
                 changeToState(ShotState.IDLE);
-            } else if (pose == Pose.FIST) {
+            } else if (pose == Pose.DOUBLE_TAP) {
                 finishedTrial();
             }
         }
     };
 
     public void nextState() {
+        stateChangeTimestamp = System.currentTimeMillis();
         switch (currentState) {
             case IDLE:
-                changeToState(ShotState.GRASPING);
+                changeToState(ShotState.GATHERED);
                 break;
-            case GRASPING:
+            case GATHERED:
                 changeToState(ShotState.LIFTING);
                 break;
             case LIFTING:
@@ -92,9 +142,14 @@ public class MainActivity extends ActionBarActivity {
                 changeToState(ShotState.FLICKING);
                 break;
             case FLICKING:
-                changeToState(ShotState.GRASPING);
+                changeToState(ShotState.GATHERED);
                 break;
         }
+    }
+
+    public void theyMessedUp(String message) {
+        currentState = ShotState.IDLE;
+        stateChangeTimestamp = System.currentTimeMillis();
     }
 
     public void changeToState(ShotState state) {
@@ -107,8 +162,8 @@ public class MainActivity extends ActionBarActivity {
                 imgMistake.setVisibility(View.INVISIBLE);
                 lblProtip.setText("");
                 break;
-            case GRASPING:
-                lblState.setText("Grasping");
+            case GATHERED:
+                lblState.setText("GATHERED");
                 progress.setProgress(0);
                 imgSuccess.setVisibility(View.INVISIBLE);
                 imgMistake.setVisibility(View.INVISIBLE);
@@ -132,7 +187,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void finishedTrial() {
         switch (currentState) {
-            case GRASPING:
+            case GATHERED:
                 imgMistake.setVisibility(View.VISIBLE);
                 lblProtip.setText(R.string.lblProtipGrasp);
                 break;

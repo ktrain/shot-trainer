@@ -2,7 +2,7 @@ package com.intjltd.shottrainer;
 
 public enum ShotState {
     IDLE,
-    GRASPING,
+    GATHERED,
     LIFTING,
     TOSSING,
     FLICKING
