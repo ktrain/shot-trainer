@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity {
     private TextView lblState;
     private ProgressBar progress;
     private WebView imgSuccess;
+    private ImageView imgMistake;
     private TextView lblProtip;
 
     private ShotState currentState = ShotState.IDLE;
@@ -103,12 +104,14 @@ public class MainActivity extends ActionBarActivity {
                 lblState.setText("Idle");
                 progress.setProgress(0);
                 imgSuccess.setVisibility(View.INVISIBLE);
+                imgMistake.setVisibility(View.INVISIBLE);
                 lblProtip.setText("");
                 break;
             case GRASPING:
                 lblState.setText("Grasping");
                 progress.setProgress(0);
                 imgSuccess.setVisibility(View.INVISIBLE);
+                imgMistake.setVisibility(View.INVISIBLE);
                 lblProtip.setText("");
                 break;
             case LIFTING:
@@ -130,17 +133,19 @@ public class MainActivity extends ActionBarActivity {
     public void finishedTrial() {
         switch (currentState) {
             case GRASPING:
+                imgMistake.setVisibility(View.VISIBLE);
                 lblProtip.setText(R.string.lblProtipGrasp);
                 break;
             case LIFTING:
+                imgMistake.setVisibility(View.VISIBLE);
                 lblProtip.setText(R.string.lblProtipLift);
                 break;
             case TOSSING:
+                imgMistake.setVisibility(View.VISIBLE);
                 lblProtip.setText(R.string.lblProtipToss);
                 break;
             case FLICKING:
                 imgSuccess.setVisibility(View.VISIBLE);
-                imgSuccess.loadUrl("http://i.imgur.com/khDZWTq.gif");
                 lblProtip.setText(R.string.lblProtipFlick);
                 break;
         }
@@ -154,7 +159,10 @@ public class MainActivity extends ActionBarActivity {
         lblState = (TextView) findViewById(R.id.lblState);
         progress = (ProgressBar) findViewById(R.id.progress);
         imgSuccess = (WebView) findViewById(R.id.imgSuccess);
+        imgMistake = (ImageView) findViewById(R.id.imgMistake);
         lblProtip = (TextView) findViewById(R.id.lblProtip);
+
+        imgSuccess.loadUrl("http://i.imgur.com/khDZWTq.gif");
 
         Hub hub = Hub.getInstance();
         if (!hub.init(this, getPackageName())) {

@@ -25,12 +25,28 @@
         android:max="3"
         android:progress="0" />
 
-    <WebView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imgSuccess"
+        android:id="@+id/grpIcons"
         android:layout_below="@+id/progress"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true">
+
+        <WebView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imgSuccess"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imgMistake"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible"
+            android:src="@drawable/mistake" />
+    </RelativeLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -38,6 +54,6 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/lblProtip"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/imgSuccess"
+        android:layout_below="@+id/grpIcons"
         android:layout_marginTop="10dp" />
 </RelativeLayout>
