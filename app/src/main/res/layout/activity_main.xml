@@ -56,4 +56,13 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/grpIcons"
         android:layout_marginTop="10dp" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtEuler"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:lines="3"
+        android:textSize="11dp" />
 </RelativeLayout>

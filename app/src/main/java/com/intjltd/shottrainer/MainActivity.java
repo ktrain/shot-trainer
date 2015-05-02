@@ -37,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
     private WebView imgSuccess;
     private ImageView imgMistake;
     private TextView lblProtip;
+    private EditText txtEuler;
 
     private ShotState currentState = ShotState.IDLE;
     private long stateChangeTimestamp = 0;
@@ -96,6 +97,12 @@ public class MainActivity extends ActionBarActivity {
                     }
                     break;
             }
+
+            txtEuler.setText(
+                "yaw: " + yaw + "\n" +
+                "pitch: " + pitch + "\n" +
+                "roll: " + roll
+            );
         }
 
         @Override
@@ -216,6 +223,7 @@ public class MainActivity extends ActionBarActivity {
         imgSuccess = (WebView) findViewById(R.id.imgSuccess);
         imgMistake = (ImageView) findViewById(R.id.imgMistake);
         lblProtip = (TextView) findViewById(R.id.lblProtip);
+        txtEuler = (EditText) findViewById(R.id.txtEuler);
 
         imgSuccess.loadUrl("http://i.imgur.com/khDZWTq.gif");
 
