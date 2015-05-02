@@ -63,6 +63,6 @@
         android:id="@+id/txtEuler"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:lines="3"
+        android:lines="5"
         android:textSize="11dp" />
 </RelativeLayout>

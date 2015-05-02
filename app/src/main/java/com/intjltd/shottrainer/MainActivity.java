@@ -64,20 +64,33 @@ public class MainActivity extends ActionBarActivity {
                     // check if pitch is within acceptable bounds
                     if (pitch < -0.5 || 0.0 < pitch) {
                         numSamples = 0;
-                    } else if (pitch < minPitch) {
+                        minPitch = 10.0;
+                        maxPitch = -10.0;
+                        break;
+                    }
+
+                    if (pitch < minPitch) {
                         minPitch = pitch;
-                    } else if (pitch > maxPitch) {
+                    }
+                    if (pitch > maxPitch) {
                         maxPitch = pitch;
                     }
 
                     // check if the min and max vary too much
                     if (Math.abs(maxPitch - minPitch) > 0.2) {
                         numSamples = 0;
+                        minPitch = 10.0;
+                        maxPitch = -10.0;
+                        break;
                     }
 
                     if (numSamples >= 50) {
                         changeToState(ShotState.GATHERED);
                         myo.vibrate(Myo.VibrationType.SHORT);
+
+                        numSamples = 0;
+                        minPitch = 10.0;
+                        maxPitch = -10.0;
                     }
                     break;
                 case GATHERED:
@@ -88,11 +101,12 @@ public class MainActivity extends ActionBarActivity {
                 case LIFTING:
                     if (pitch < 0.9) {
                         if (roll > 2.0) {
-                            theyMessedUp("Keep the ball in front of your head.");
+                            finishedTrial("Keep the ball in front of your head.");
                         } else if (System.currentTimeMillis() - stateChangeTimestamp < 500) {
-                            theyMessedUp("Not enough follow-through.");
+                            finishedTrial("Not enough follow-through.");
                         } else {
-                            theyMessedUp("Nice form!");
+                            changeToState(ShotState.RELEASING);
+                            myo.vibrate(Myo.VibrationType.MEDIUM);
                         }
                     }
                     break;
@@ -101,7 +115,9 @@ public class MainActivity extends ActionBarActivity {
             txtEuler.setText(
                 "yaw: " + yaw + "\n" +
                 "pitch: " + pitch + "\n" +
-                "roll: " + roll
+                "roll: " + roll + "\n" +
+                "max: " + maxPitch + "\n" +
+                "min: " + minPitch
             );
         }
 
@@ -122,44 +138,14 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onPose(Myo myo, long timestamp, Pose pose) {
-            Log.d("JSIZZLE", "received a pose: " + pose);
-            if (pose == Pose.WAVE_OUT) {
-                nextState();
-            } else if (pose == Pose.WAVE_IN) {
+            if (pose == Pose.DOUBLE_TAP) {
                 changeToState(ShotState.IDLE);
-            } else if (pose == Pose.DOUBLE_TAP) {
-                finishedTrial();
             }
         }
     };
 
-    public void nextState() {
-        stateChangeTimestamp = System.currentTimeMillis();
-        switch (currentState) {
-            case IDLE:
-                changeToState(ShotState.GATHERED);
-                break;
-            case GATHERED:
-                changeToState(ShotState.LIFTING);
-                break;
-            case LIFTING:
-                changeToState(ShotState.TOSSING);
-                break;
-            case TOSSING:
-                changeToState(ShotState.FLICKING);
-                break;
-            case FLICKING:
-                changeToState(ShotState.GATHERED);
-                break;
-        }
-    }
-
-    public void theyMessedUp(String message) {
-        currentState = ShotState.IDLE;
-        stateChangeTimestamp = System.currentTimeMillis();
-    }
-
     public void changeToState(ShotState state) {
+        stateChangeTimestamp = System.currentTimeMillis();
         currentState = state;
         switch (state) {
             case IDLE:
@@ -167,50 +153,41 @@ public class MainActivity extends ActionBarActivity {
                 progress.setProgress(0);
                 imgSuccess.setVisibility(View.INVISIBLE);
                 imgMistake.setVisibility(View.INVISIBLE);
-                lblProtip.setText("");
                 break;
             case GATHERED:
-                lblState.setText("GATHERED");
-                progress.setProgress(0);
+                lblState.setText("Gathered");
+                progress.setProgress(1);
                 imgSuccess.setVisibility(View.INVISIBLE);
                 imgMistake.setVisibility(View.INVISIBLE);
                 lblProtip.setText("");
                 break;
             case LIFTING:
                 lblState.setText("Lifting");
-                progress.setProgress(1);
-                break;
-            case TOSSING:
-                lblState.setText("Tossing");
                 progress.setProgress(2);
                 break;
-            case FLICKING:
-                lblState.setText("Flicking");
+            case RELEASING:
+                lblState.setText("Releasing");
                 progress.setProgress(3);
-                finishedTrial();
-                break;
+                finishedTrial("You did it!");
         }
     }
 
-    public void finishedTrial() {
+    public void finishedTrial(String message) {
         switch (currentState) {
             case GATHERED:
                 imgMistake.setVisibility(View.VISIBLE);
-                lblProtip.setText(R.string.lblProtipGrasp);
+                lblProtip.setText(message);
                 break;
             case LIFTING:
                 imgMistake.setVisibility(View.VISIBLE);
-                lblProtip.setText(R.string.lblProtipLift);
+                lblProtip.setText(message);
                 break;
-            case TOSSING:
-                imgMistake.setVisibility(View.VISIBLE);
-                lblProtip.setText(R.string.lblProtipToss);
-                break;
-            case FLICKING:
+            case RELEASING:
                 imgSuccess.setVisibility(View.VISIBLE);
-                lblProtip.setText(R.string.lblProtipFlick);
+                lblProtip.setText(message);
                 break;
         }
+        currentState = ShotState.IDLE;
     }
 
     @Override

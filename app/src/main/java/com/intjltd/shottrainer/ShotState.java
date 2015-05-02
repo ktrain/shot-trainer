@@ -4,6 +4,5 @@ public enum ShotState {
     IDLE,
     GATHERED,
     LIFTING,
-    TOSSING,
-    FLICKING
+    RELEASING
 }
