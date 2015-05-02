@@ -1,0 +1,169 @@
+<html>
+<head>
+	<script src="myo.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script>
+(function() {
+	var map = function(array, aMap, bMap, words){
+		array.forEach(function(word){
+		if(!aMap[word]) aMap[word] = 0
+		if(!bMap[word]) bMap[word] = 0
+		aMap[word] += 1
+		words[word] = true
+		})
+	}
+
+	var similarity = function(a, b){
+		var aMap = {}
+		var bMap = {}
+		var words = {}
+		var aA = []
+		var bA = []
+
+		map(a, aMap, bMap, words)
+		map(b, bMap, aMap, words)
+
+		Object.keys(words).forEach(function(word, i){
+			aA[i] = aMap[word]
+			bA[i] = bMap[word]
+		})
+
+		return {
+			a: aA,
+			b: bA
+		}
+	}
+
+	CosineSimilarity = function(a, b){
+		if (_.isString(a)) {
+			a = a.split(/\s/);
+		}
+		if (_.isString(b)) {
+			b = b.split(/\s/);
+		}
+		var sim = similarity(a.map(String), b.map(String))
+
+		a = sim.a
+		b = sim.b
+
+		var product = 0
+		var aNorm = 0
+		var bNorm = 0
+
+		a.forEach(function(v, i){
+			product += v * b[i]
+			aNorm += v * v
+			bNorm += b[i] * b[i]
+		})
+
+		return product / (Math.sqrt(aNorm) * Math.sqrt(bNorm))
+	}
+
+	getEulerAngles = function(q){
+		return {
+			roll : Math.atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z),
+			pitch : Math.asin(-2.0*(q.x*q.z - q.w*q.y)),
+			yaw : Math.atan2(2.0*(q.x*q.y + q.w*q.z), q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z)
+		}
+	}
+})();
+	</script>
+</head>
+<body>
+	<h2>state: <span id="state"></span></h2>
+	<div>yaw: <span id="yaw"></span></div>
+	<div>pitch: <span id="pitch"></span></div>
+	<div>roll: <span id="roll"></span></div>
+	<div>stats: <span id="stats"></span></div>
+
+	<script>
+	myo = Myo.create();
+	console.log(myo);
+
+	var state = 'waiting';
+	yawElm = $('#yaw');
+	pitchElm = $('#pitch');
+	rollElm = $('#roll');
+	stateElm = $('#state');
+	statsElm = $('#stats');
+	globalData = {};
+	var stateChangeTimestamp = new Date();
+
+	var pitchSamples = [];
+
+
+	if (!myo.isConnected) {
+		console.error('no myo');
+	}
+	//myo.setLockingPolicy('none');
+
+	var imuQ = [];
+	var emgQ = [];
+	myo.on('orientation', function(data) {
+		//console.log(data);
+		globalData = getEulerAngles(data);
+		yawElm.text(globalData.yaw.toFixed(2));
+		pitchElm.text(globalData.pitch.toFixed(2));
+		rollElm.text(globalData.roll.toFixed(2));
+		stateElm.text(state);
+
+		switch (state) {
+			case 'keep the ball in front of your head':
+			case 'nice form!':
+			case 'not enough follow-through':
+			case 'waiting':
+				// look for holding the ball at waist level
+				pitchSamples.push(globalData.pitch.toFixed(1));
+				if (pitchSamples.length >= 40) {
+					pitchSamples.sort();
+					var min = pitchSamples[0];
+					var median = pitchSamples[pitchSamples.length / 2];
+					var max = pitchSamples[pitchSamples.length - 1];
+
+					if (-0.5 < median && median <= 0 && -0.5 < min && max < 0 && Math.abs(max - min) < 0.2) {
+						statsElm.text(median + ' ' + min + ' ' + max + ' ' + Math.abs(max - min));
+						state = 'gathered';
+						stateChangeTimestamp = new Date();
+						myo.vibrate('short');
+					}
+					pitchSamples = [];
+				}
+				break;
+			case 'gathered':
+				if (globalData.pitch > 1) {
+					state = 'raising';
+					stateChangeTimestamp = new Date();
+				}
+				break;
+			case 'raising':
+				if (globalData.pitch < 0.9) {
+					if (globalData.roll > 2.00) {
+						state = "keep the ball in front of your head";
+					} else if (new Date() - stateChangeTimestamp < 500) {
+						state = 'not enough follow-through';
+						stateChangeTimestamp = new Date();
+					} else {
+						state = 'nice form!';
+						stateChangeTimestamp = new Date();
+						myo.vibrate();
+					}
+				}
+				break;
+		}
+	});
+	myo.on('double_tap', function(edge) {
+		if (edge) {
+			state = 'waiting';
+			stateChangeTimestamp = new Date();
+			pitchSamples = [];
+		}
+	});
+	myo.on('fist', function(edge) {
+		if (edge) {
+			myo.zeroOrientation();
+		}
+	});
+	</script>
+</body>
+</html>
